@@ -1,0 +1,48 @@
+<form id="adminTeamForm" class="panel-box">
+  <h3>Registrer lag</h3>
+  <label>Lagnavn <input name="name" type="text" required /></label>
+  <label>Turnering
+    <select name="tournamentId" id="adminTeamTournament" required></select>
+  </label>
+  <label>Lagleder
+    <select name="leaderUserId" id="adminLeaderSelect"></select>
+  </label>
+  <button type="submit">Lagre lag</button>
+</form>
+
+<form id="adminPlayerForm" class="panel-box">
+  <h3>Legg til spiller</h3>
+  <label>Navn <input name="name" type="text" required /></label>
+  <label>Alder <input name="age" type="number" min="1" required /></label>
+  <label>Lag
+    <select name="teamId" id="adminPlayerTeam" required></select>
+  </label>
+  <button type="submit">Lagre spiller</button>
+</form>
+
+<form id="adminMatchForm" class="panel-box">
+  <h3>Sett opp kamp</h3>
+  <label>Turnering
+    <select name="tournamentId" id="adminMatchTournament" required></select>
+  </label>
+  <label>Lag 1
+    <select name="team1Id" id="adminMatchTeam1" required></select>
+  </label>
+  <label>Lag 2
+    <select name="team2Id" id="adminMatchTeam2" required></select>
+  </label>
+  <label>Tidspunkt
+    <input name="kickoff" type="datetime-local" required />
+  </label>
+  <button type="submit">Lagre kamp</button>
+</form>
+
+<form id="adminResultForm" class="panel-box">
+  <h3>Registrer resultat</h3>
+  <label>Kamp
+    <select name="matchId" id="adminResultMatch" required></select>
+  </label>
+  <label>Lag 1 mål <input name="score1" type="number" min="0" required /></label>
+  <label>Lag 2 mål <input name="score2" type="number" min="0" required /></label>
+  <button type="submit">Lagre resultat</button>
+</form>

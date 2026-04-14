@@ -1,42 +1,63 @@
 const bcrypt = require('bcryptjs');
 const userModel = require('../models/userModel');
 
-function login(req, res) {
+function publicUser(user) {
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    role: user.role,
+    age: user.age ?? null,
+  };
+}
+
+async function login(req, res) {
   const { username, password } = req.body || {};
 
   if (!username || !password) {
     return res.status(400).json({ error: 'Brukernavn og passord er påkrevd.' });
   }
 
-  const user = userModel.findByUsername(String(username).trim());
+  const user = await userModel.findByUsername(String(username).trim());
 
-  if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+  if (!user) {
     return res.status(401).json({ error: 'Ugyldig brukernavn eller passord.' });
   }
 
-  req.session.userId = user.id;
+  const isPasswordValid = await bcrypt.compare(String(password), user.password_hash);
+  if (!isPasswordValid) {
+    return res.status(401).json({ error: 'Ugyldig brukernavn eller passord.' });
+  }
 
-  res.json({
-    user: {
-      id: user.id,
+  req.session.userId = user._id.toString();
+
+  return res.json({
+    user: publicUser({
+      id: user._id.toString(),
       name: user.name,
       username: user.username,
       role: user.role,
       age: user.age,
-    },
+    }),
   });
 }
 
-function logout(req, res) {
+async function logout(req, res) {
   req.session.destroy(() => {
     res.json({ ok: true });
   });
 }
 
-function me(req, res) {
-  const user = req.user; // from middleware
-  res.json({ user });
+async function me(req, res) {
+  return res.json({ user: publicUser(req.user) });
 }
 
-module.exports = { login, logout, me };
-
+module.exports = {
+  login,
+  logout,
+  me,
+};

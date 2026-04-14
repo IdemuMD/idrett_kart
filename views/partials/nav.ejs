@@ -1,0 +1,6 @@
+<nav class="nav">
+  <a href="/" class="logo">Idrettskart</a>
+  <% if (currentUser) { %>
+    <span class="nav-user"><%= currentUser.name %> (<%= currentUser.role %>)</span>
+  <% } %>
+</nav>

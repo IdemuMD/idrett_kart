@@ -1,0 +1,35 @@
+<section id="leaderPanel" class="card hidden">
+  <h2>Laglederpanel</h2>
+  <div class="panel-grid">
+    <form id="leaderTeamForm" class="panel-box">
+      <h3>Registrer eget lag</h3>
+      <label>Lagnavn <input name="name" type="text" required /></label>
+      <label>Turnering
+        <select name="tournamentId" id="leaderTournament" required></select>
+      </label>
+      <button type="submit">Lagre lag</button>
+    </form>
+
+    <form id="leaderPlayerForm" class="panel-box">
+      <h3>Legg til spiller i eget lag</h3>
+      <label>Navn <input name="name" type="text" required /></label>
+      <label>Alder <input name="age" type="number" min="1" required /></label>
+      <label>Lag
+        <select name="teamId" id="leaderTeamSelect" required></select>
+      </label>
+      <button type="submit">Lagre spiller</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Mitt lag</th>
+          <th>Turnering</th>
+        </tr>
+      </thead>
+      <tbody id="leaderTeamsBody"></tbody>
+    </table>
+  </div>
+</section>

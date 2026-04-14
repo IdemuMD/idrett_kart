@@ -1,45 +1,60 @@
-const tournamentModel = require('../models/tournamentModel');
-const teamModel = require('../models/teamModel');
 const matchModel = require('../models/matchModel');
+const teamModel = require('../models/teamModel');
+const tournamentModel = require('../models/tournamentModel');
+const userModel = require('../models/userModel');
 
-function getPublicDashboard(req, res) {
-  res.json({
-    tournaments: tournamentModel.list(),
-    teams: teamModel.list(),
-    matches: matchModel.list(),
+async function getPublicDashboard(req, res) {
+  const [tournaments, teams, matches] = await Promise.all([
+    tournamentModel.list(),
+    teamModel.list(),
+    matchModel.list(),
+  ]);
+
+  return res.json({
+    matches,
+    teams,
+    tournaments,
   });
 }
 
-function listLookups(req, res) {
+async function listLookups(req, res) {
+  const [tournaments, teams, matches] = await Promise.all([
+    tournamentModel.listSimple(),
+    teamModel.list(),
+    matchModel.list(),
+  ]);
+
   const lookups = {
-    tournaments: tournamentModel.list(),
-    teams: teamModel.list(),
-    matches: matchModel.list(),
+    matches,
+    teams,
+    tournaments,
   };
 
-  if (req.user.role === 'admin') {
-    const userModel = require('../models/userModel');
-    lookups.leaders = userModel.listLeaders();
+  if (req.user?.role === 'admin') {
+    lookups.leaders = await userModel.listLeaders();
   }
 
-  if (req.user.role === 'leader') {
-    lookups.myTeams = teamModel.listForLeader(req.user.id);
+  if (req.user?.role === 'leader') {
+    lookups.myTeams = await teamModel.listForLeader(req.user.id);
   }
 
-  res.json(lookups);
+  return res.json(lookups);
 }
 
-function createTournament(req, res) {
+async function createTournament(req, res) {
   const { name, date } = req.body || {};
 
   if (!name || !date) {
     return res.status(400).json({ error: 'Navn og dato er påkrevd.' });
   }
 
-  const result = tournamentModel.create(String(name).trim(), String(date).trim());
+  const tournament = await tournamentModel.create(String(name).trim(), String(date).trim());
 
-  res.status(201).json({ id: result.lastInsertRowid });
+  return res.status(201).json({ id: tournament._id.toString() });
 }
 
-module.exports = { getPublicDashboard, listLookups, createTournament };
-
+module.exports = {
+  createTournament,
+  getPublicDashboard,
+  listLookups,
+};

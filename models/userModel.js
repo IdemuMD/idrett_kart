@@ -1,38 +1,30 @@
-const { db } = require('./database');
+const { User, toClientDoc } = require('./mongoModels');
 
-function findByUsername(username) {
-  return db.prepare(`
-    SELECT id, name, username, role, age, password_hash
-    FROM users WHERE username = ?
-  `).get(username);
+async function findByUsername(username) {
+  return User.findOne({ username }).lean();
 }
 
-function findById(id) {
-  return db.prepare(`
-    SELECT id, name, username, role, age
-    FROM users WHERE id = ?
-  `).get(id);
+async function findById(id) {
+  return User.findById(id).select('name username role age created_at').lean();
 }
 
-function listUsers() {
-  return db.prepare(`
-    SELECT id, name, username, role, age, created_at
-    FROM users ORDER BY id ASC
-  `).all();
+async function listUsers() {
+  const users = await User.find().sort({ created_at: 1, name: 1 }).lean();
+  return users.map(toClientDoc);
 }
 
-function listLeaders() {
-  return db.prepare(`
-    SELECT id, name, username
-    FROM users WHERE role = 'leader'
-    ORDER BY name ASC
-  `).all();
+async function listLeaders() {
+  const leaders = await User.find({ role: 'leader' })
+    .select('name username role created_at')
+    .sort({ name: 1 })
+    .lean();
+
+  return leaders.map(toClientDoc);
 }
 
 module.exports = {
-  findByUsername,
   findById,
-  listUsers,
+  findByUsername,
   listLeaders,
+  listUsers,
 };
-

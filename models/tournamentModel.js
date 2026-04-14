@@ -1,19 +1,55 @@
-const { db } = require('./database');
+const { Tournament, toClientDoc } = require('./mongoModels');
 
-function list() {
-  return db.prepare(`
-    SELECT t.id, t.name, t.date,
-           COUNT(DISTINCT te.id) AS team_count
-    FROM tournaments t
-    LEFT JOIN teams te ON te.tournament_id = t.id
-    GROUP BY t.id
-    ORDER BY t.date ASC, t.id ASC
-  `).all();
+async function list() {
+  const tournaments = await Tournament.aggregate([
+    {
+      $lookup: {
+        from: 'teams',
+        localField: '_id',
+        foreignField: 'tournament_id',
+        as: 'teams',
+      },
+    },
+    {
+      $addFields: {
+        team_count: { $size: '$teams' },
+      },
+    },
+    {
+      $project: {
+        teams: 0,
+      },
+    },
+    {
+      $sort: {
+        date: 1,
+        _id: 1,
+      },
+    },
+  ]);
+
+  return tournaments.map((tournament) => ({
+    ...toClientDoc(tournament),
+    team_count: tournament.team_count || 0,
+  }));
 }
 
-function create(name, date) {
-  return db.prepare('INSERT INTO tournaments (name, date) VALUES (?, ?)').run(name, date);
+async function create(name, date) {
+  return Tournament.create({ name, date });
 }
 
-module.exports = { list, create };
+async function existsById(id) {
+  return Tournament.exists({ _id: id });
+}
 
+async function listSimple() {
+  const tournaments = await Tournament.find().sort({ date: 1, name: 1 }).lean();
+  return tournaments.map(toClientDoc);
+}
+
+module.exports = {
+  create,
+  existsById,
+  list,
+  listSimple,
+};

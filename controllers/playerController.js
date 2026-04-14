@@ -1,24 +1,33 @@
 const playerModel = require('../models/playerModel');
 const teamModel = require('../models/teamModel');
 
-function create(req, res) {
+async function ensureTeamExists(teamId) {
+  const team = await teamModel.findById(teamId);
+  return team;
+}
+
+async function create(req, res) {
   const { name, age, teamId } = req.body || {};
 
   if (!name || Number.isNaN(Number(age)) || !teamId) {
     return res.status(400).json({ error: 'Navn, alder og lag er påkrevd.' });
   }
 
-  const team = teamModel.list().find(t => t.id == teamId);
+  const team = await ensureTeamExists(teamId);
   if (!team) {
     return res.status(404).json({ error: 'Fant ikke lag.' });
   }
 
-  const result = playerModel.create(String(name).trim(), Number(age), Number(teamId));
+  const player = await playerModel.create(
+    String(name).trim(),
+    Number(age),
+    teamId,
+  );
 
-  res.status(201).json({ id: result.lastInsertRowid });
+  return res.status(201).json({ id: player._id.toString() });
 }
 
-function joinTeam(req, res) {
+async function joinTeam(req, res) {
   const { teamId, age } = req.body || {};
   const safeAge = Number.isNaN(Number(age)) ? req.user.age || 0 : Number(age);
 
@@ -26,7 +35,7 @@ function joinTeam(req, res) {
     return res.status(400).json({ error: 'Du må velge et lag.' });
   }
 
-  const team = teamModel.list().find(t => t.id == teamId);
+  const team = await ensureTeamExists(teamId);
   if (!team) {
     return res.status(404).json({ error: 'Fant ikke lag.' });
   }
@@ -35,18 +44,17 @@ function joinTeam(req, res) {
     return res.status(400).json({ error: 'Alder må være gyldig.' });
   }
 
-  const playerModel = require('../models/playerModel');
-  const existing = playerModel.listForAdmin().find(p => p.user_id == req.user.id);
+  await playerModel.upsertForParticipant({
+    age: safeAge,
+    name: req.user.name,
+    teamId,
+    userId: req.user.id,
+  });
 
-  if (existing) {
-    db.prepare('UPDATE players SET team_id = ?, age = ? WHERE user_id = ?')
-      .run(Number(teamId), safeAge, req.user.id);
-  } else {
-    playerModel.create(req.user.name, safeAge, Number(teamId));
-  }
-
-  res.json({ ok: true });
+  return res.json({ ok: true });
 }
 
-module.exports = { create, joinTeam };
-
+module.exports = {
+  create,
+  joinTeam,
+};

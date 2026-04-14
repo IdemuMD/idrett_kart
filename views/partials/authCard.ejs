@@ -1,0 +1,30 @@
+<section class="card auth-card">
+  <div>
+    <h2>Innlogging</h2>
+    <p class="muted">Kun admin, lagleder og deltaker trenger innlogging. Publikum kan se kamper uten å logge inn.</p>
+  </div>
+
+  <form id="loginForm" class="form-grid">
+    <label>
+      Brukernavn
+      <input name="username" type="text" required />
+    </label>
+    <label>
+      Passord
+      <input name="password" type="password" required />
+    </label>
+    <button type="submit">Logg inn</button>
+  </form>
+
+  <div id="userBox" class="user-box hidden">
+    <p>Innlogget som <strong id="userName"></strong> (<span id="userRole"></span>)</p>
+    <button id="logoutBtn" type="button" class="secondary">Logg ut</button>
+  </div>
+
+  <div class="demo-login muted">
+    Demo-brukere:
+    <code>admin / admin123</code>
+    <code>lagleder / leder123</code>
+    <code>deltaker / spiller123</code>
+  </div>
+</section>

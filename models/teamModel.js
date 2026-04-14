@@ -1,32 +1,71 @@
-const { db } = require('./database');
+const { Team, toClientDoc } = require('./mongoModels');
 
-function list() {
-  return db.prepare(`
-    SELECT te.id, te.name, te.tournament_id, t.name AS tournament_name,
-           te.leader_user_id, u.name AS leader_name
-    FROM teams te
-    INNER JOIN tournaments t ON t.id = te.tournament_id
-    LEFT JOIN users u ON u.id = te.leader_user_id
-    ORDER BY t.date ASC, te.name ASC
-  `).all();
+function mapTeam(team) {
+  const client = toClientDoc(team);
+  return {
+    ...client,
+    tournament_id: team.tournament_id?._id?.toString() || team.tournament_id?.toString?.() || client.tournament_id || null,
+    tournament_name: team.tournament_id?.name || client.tournament_name || '',
+    leader_user_id: team.leader_user_id?._id?.toString() || team.leader_user_id?.toString?.() || client.leader_user_id || null,
+    leader_name: team.leader_user_id?.name || client.leader_name || '',
+  };
 }
 
-function create(name, tournamentId, leaderUserId) {
-  return db.prepare(`
-    INSERT INTO teams (name, tournament_id, leader_user_id)
-    VALUES (?, ?, ?)
-  `).run(name, tournamentId, leaderUserId);
+async function list() {
+  const teams = await Team.find()
+    .populate('tournament_id', 'name date')
+    .populate('leader_user_id', 'name username')
+    .sort({ name: 1 })
+    .lean();
+
+  return teams.map(mapTeam);
 }
 
-function listForLeader(leaderId) {
-  return db.prepare(`
-    SELECT te.id, te.name, te.tournament_id, t.name AS tournament_name
-    FROM teams te
-    INNER JOIN tournaments t ON t.id = te.tournament_id
-    WHERE te.leader_user_id = ?
-    ORDER BY t.date ASC, te.name ASC
-  `).all(leaderId);
+async function create(name, tournamentId, leaderUserId = null) {
+  return Team.create({
+    name,
+    tournament_id: tournamentId,
+    leader_user_id: leaderUserId || null,
+  });
 }
 
-module.exports = { list, create, listForLeader };
+async function listForLeader(leaderId) {
+  const teams = await Team.find({ leader_user_id: leaderId })
+    .populate('tournament_id', 'name date')
+    .sort({ name: 1 })
+    .lean();
 
+  return teams.map(mapTeam);
+}
+
+async function existsByTournament(name, tournamentId) {
+  return Team.exists({ name, tournament_id: tournamentId });
+}
+
+async function findById(id) {
+  const team = await Team.findById(id)
+    .populate('tournament_id', 'name date')
+    .populate('leader_user_id', 'name username')
+    .lean();
+
+  return team ? mapTeam(team) : null;
+}
+
+async function listForTournament(tournamentId) {
+  const teams = await Team.find({ tournament_id: tournamentId })
+    .populate('tournament_id', 'name date')
+    .populate('leader_user_id', 'name username')
+    .sort({ name: 1 })
+    .lean();
+
+  return teams.map(mapTeam);
+}
+
+module.exports = {
+  create,
+  existsByTournament,
+  findById,
+  list,
+  listForLeader,
+  listForTournament,
+};

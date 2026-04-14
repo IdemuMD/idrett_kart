@@ -19,20 +19,12 @@ Dette er et komplett turneringssystem for idrettsarrangører med rollebasert til
 
 ```mermaid
 erDiagram
-    BRUKER ||--o{ LAG : "leder for"
-    BRUKER ||--o{ SPILLER : "har"
     TURNERING ||--o{ LAG : "har"
     LAG ||--o{ SPILLER : "har"
     TURNERING ||--o{ KAMP : "har"
     KAMP }|--|| LAG : "lag1"
     KAMP }|--|| LAG : "lag2"
 
-    BRUKER {
-        int id PK
-        string navn
-        string rolle
-        string passord_hash
-    }
     TURNERING {
         int id PK
         string navn
@@ -42,23 +34,25 @@ erDiagram
         int id PK
         string navn
         int turnering_id FK
-        int leder_user_id FK
     }
     SPILLER {
         int id PK
         string navn
         int alder
         int lag_id FK
-        int user_id FK
     }
     KAMP {
         int id PK
-        int turnering_id FK
         int lag1_id FK
         int lag2_id FK
         datetime tidspunkt
-        int resultat1
-        int resultat2
+        string resultat
+    }
+    BRUKER {
+        int id PK
+        string navn
+        string rolle
+        string passord
     }
 ```
 
@@ -87,7 +81,7 @@ flowchart TD
 - Passord hashet med bcrypt
 - Barnedata: alder-synlig, foresatt-samtykke anbefales
 - Session-only auth, ingen tracking cookies
-- SQLite WAL for dataintegritet
+- MongoDB med tilgangsstyring og backup-rutiner
 - Ikke-vis persondata offentlig (kun navn/alder)
 
 **Databehandleravtale:** Arrangør ansvarlig.
@@ -111,21 +105,21 @@ graph TB
 **Tech stack:**
 - **Frontend:** HTML/CSS/JS (vanilla)
 - **Backend:** Node.js/Express + session auth
-- **Database:** MongoDB (prod), SQLite (dev/demo)
+- **Database:** MongoDB på egen VM
 - **Deployment:** PM2 + Nginx reverse proxy
 
 ### 6. IP-plan
 
 | Enhet | Rolle | IP-adresse | Port | Kommentar |
 |-------|-------|------------|------|-----------|
-| **Webserver** | Node.js app | **10.12.2.230** | 3000 | Frontend/backend |
-| **DB-server** | MongoDB | **10.12.2.231** | 27017 | Kun intern tilgang |
-| **Admin-PC** | Administrasjon | 10.12.2.20 | - | VPN/LAN |
+| **Webserver** | Nettsted + backend | **10.12.2.230** | 3000 / 443 | Offentlig tilgang via web |
+| **Database-server** | Database | **10.12.2.231** | 27017 | Kun intern tilgang fra webserver |
+| **Admin-PC** | Administrasjon | 10.12.2.20 | - | Valgfri intern klient |
 
 **Nettverk:**
 - Subnett: `10.12.2.0/24`
-- Firewall: MongoDB kun fra 10.12.2.230
-- Backup: Daglig MongoDB dump → NAS
+- Firewall: Database kun fra `10.12.2.230`
+- Backup: Daglig database-backup til trygg lagring
 
 ### 7. Feilhåndtering
 

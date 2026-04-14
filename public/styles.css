@@ -28,6 +28,29 @@ body {
   min-height: 100vh;
 }
 
+.nav {
+  width: min(1100px, 92vw);
+  margin: 18px auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+}
+
+.logo {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.nav-user {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
 .bg-shape {
   position: fixed;
   border-radius: 999px;
