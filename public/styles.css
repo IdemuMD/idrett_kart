@@ -1,0 +1,296 @@
+:root {
+  --bg: #f2f6f4;
+  --ink: #102a25;
+  --muted: #4b6a63;
+  --card: #ffffff;
+  --line: #d5e2de;
+  --accent: #0f7b5f;
+  --accent-2: #dd7a2c;
+  --danger: #b8352f;
+  --shadow: 0 18px 38px rgba(16, 42, 37, 0.12);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Manrope', sans-serif;
+  background: radial-gradient(circle at 18% 8%, #ffffff 0%, var(--bg) 48%, #e6efeb 100%);
+  color: var(--ink);
+}
+
+body {
+  min-height: 100vh;
+}
+
+.bg-shape {
+  position: fixed;
+  border-radius: 999px;
+  filter: blur(2px);
+  opacity: 0.25;
+  z-index: -1;
+}
+
+.bg-shape-1 {
+  width: 360px;
+  height: 360px;
+  top: -110px;
+  right: -110px;
+  background: linear-gradient(145deg, #7ab893, #b7ddca);
+}
+
+.bg-shape-2 {
+  width: 320px;
+  height: 320px;
+  left: -120px;
+  bottom: 80px;
+  background: linear-gradient(145deg, #f0b26f, #f7d9b7);
+}
+
+.page {
+  width: min(1100px, 92vw);
+  margin: 28px auto 44px;
+  display: grid;
+  gap: 18px;
+  animation: riseIn 0.45s ease-out;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 1.9vw, 2rem);
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+h2,
+h3 {
+  margin: 0;
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  border: 1px solid #c6d7d1;
+  border-radius: 11px;
+  padding: 0.58rem 0.65rem;
+  background: #fbfdfc;
+}
+
+button {
+  border: 0;
+  border-radius: 11px;
+  padding: 0.62rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), #0b9a75);
+  color: #fff;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  background: #ebf3f0;
+  color: #22453e;
+  border: 1px solid #cde0d9;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.user-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.user-box p {
+  margin: 0;
+}
+
+.demo-login {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+code {
+  background: #edf3f1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #d1e2dc;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tournament-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tournament-card {
+  border: 1px solid #d4e3de;
+  border-radius: 12px;
+  padding: 12px;
+  background: linear-gradient(145deg, #f7fbf9, #ffffff);
+}
+
+.tournament-card p {
+  margin: 0;
+}
+
+.tournament-card .name {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e2ece8;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.panel-box {
+  border: 1px solid #dbe8e4;
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  background: #fbfdfc;
+}
+
+.inline-form {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
+}
+
+.status {
+  margin: 0;
+  border-radius: 10px;
+  padding: 11px 12px;
+  border: 1px solid #d3e2dd;
+  background: #f4faf7;
+}
+
+.status.error {
+  border-color: #f0c5c1;
+  background: #fff2f1;
+  color: var(--danger);
+}
+
+@media (max-width: 720px) {
+  .page {
+    width: min(96vw, 1100px);
+    margin: 14px auto 26px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .user-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "idrett_kart",
+  "version": "1.0.0",
+  "description": "Turneringssystem med roller, kampoppsett og resultater.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.9.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  }
+}
