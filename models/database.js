@@ -74,9 +74,7 @@ function migrate() {
 
 function seedUsers() {
   const count = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
-  if (count > 0) {
-    return;
-  }
+  if (count > 0) return;
 
   const insertUser = db.prepare(`
     INSERT INTO users (name, username, password_hash, role, age)
@@ -100,26 +98,15 @@ function seedUsers() {
 
 function seedDemoData() {
   const tournamentsCount = db.prepare('SELECT COUNT(*) AS c FROM tournaments').get().c;
-  if (tournamentsCount > 0) {
-    return;
-  }
+  if (tournamentsCount > 0) return;
 
   const admin = db.prepare(`SELECT id FROM users WHERE role = 'admin' LIMIT 1`).get();
   const leader = db.prepare(`SELECT id FROM users WHERE role = 'leader' LIMIT 1`).get();
 
-  const insertTournament = db.prepare(`
-    INSERT INTO tournaments (name, date) VALUES (?, ?)
-  `);
-  const insertTeam = db.prepare(`
-    INSERT INTO teams (name, tournament_id, leader_user_id) VALUES (?, ?, ?)
-  `);
-  const insertPlayer = db.prepare(`
-    INSERT INTO players (name, age, team_id, user_id) VALUES (?, ?, ?, ?)
-  `);
-  const insertMatch = db.prepare(`
-    INSERT INTO matches (tournament_id, team1_id, team2_id, kickoff, score1, score2)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
+  const insertTournament = db.prepare(`INSERT INTO tournaments (name, date) VALUES (?, ?)`);
+  const insertTeam = db.prepare(`INSERT INTO teams (name, tournament_id, leader_user_id) VALUES (?, ?, ?)`);
+  const insertPlayer = db.prepare(`INSERT INTO players (name, age, team_id, user_id) VALUES (?, ?, ?, ?)`);
+  const insertMatch = db.prepare(`INSERT INTO matches (tournament_id, team1_id, team2_id, kickoff, score1, score2) VALUES (?, ?, ?, ?, ?, ?)`);
 
   const tx = db.transaction(() => {
     const tournament = insertTournament.run('Vaarturnering 2026', '2026-05-20');
@@ -146,7 +133,5 @@ function initializeDatabase() {
   seedDemoData();
 }
 
-module.exports = {
-  db,
-  initializeDatabase,
-};
+module.exports = { db, initializeDatabase };
+
