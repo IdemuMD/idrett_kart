@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const DEFAULT_MONGO_URI = 'mongodb://idrett:kart123@10.12.2.231:27017/idrett_kart?authSource=idrett_kart';
+const DEFAULT_MONGO_URI = 'mongodb://10.12.2.231:27017/idrett_kart';
 
 async function connectMongo() {
   const mongoUri = process.env.MONGODB_URI || DEFAULT_MONGO_URI;
