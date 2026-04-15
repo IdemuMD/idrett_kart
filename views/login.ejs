@@ -33,6 +33,22 @@
 
   <aside class="login-aside">
     <div class="login-card">
+      <p class="eyebrow">Ny bruker</p>
+      <h3>Registrer deg</h3>
+      <p class="muted">En ny bruker får automatisk samme lesetilgang som publikum.</p>
+      <form action="/register" method="post" class="login-form compact-form">
+        <label>
+          Navn
+          <input name="name" type="text" placeholder="nybruker" required>
+        </label>
+        <label>
+          Passord
+          <input name="password" type="password" placeholder="••••••••" required>
+        </label>
+        <button type="submit">Opprett bruker</button>
+      </form>
+    </div>
+    <div class="login-card">
       <p class="eyebrow">Sikker tilgang</p>
       <h3>Beskyttede sider</h3>
       <p class="muted">Admin-siden vises ikke i menyen for andre roller, og `/admin` er sperret på serversiden.</p>

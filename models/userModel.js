@@ -22,10 +22,24 @@ async function createUser(data) {
   return User.create(data);
 }
 
+async function updateRole(id, role) {
+  return User.findByIdAndUpdate(
+    id,
+    { role: String(role).trim() },
+    { new: true, runValidators: true },
+  ).lean();
+}
+
+async function deleteUser(id) {
+  return User.findByIdAndDelete(id).lean();
+}
+
 module.exports = {
   createUser,
+  deleteUser,
   findById,
   findByName,
   listLeaders,
   listUsers,
+  updateRole,
 };

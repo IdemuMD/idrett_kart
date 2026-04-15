@@ -13,66 +13,134 @@ Dette er et komplett turneringssystem for idrettsarrangører med rollebasert til
 | **Publikum** | • Kun se kampoppsett og resultater |
 
 **Demo-brukere:**<br>
-`admin/admin123` | `lagleder/leder123` | `deltaker/spiller123`
+`admin / admin123`<br>
+`leader / leader123`<br>
+`participant / participant123`
 
-### 2. ER-diagram (database)
+### 2. Datamodell (MongoDB)
 
 ```mermaid
 erDiagram
-    TURNERING ||--o{ LAG : "har"
-    LAG ||--o{ SPILLER : "har"
-    TURNERING ||--o{ KAMP : "har"
-    KAMP }|--|| LAG : "lag1"
-    KAMP }|--|| LAG : "lag2"
+    TOURNAMENT ||--o{ TEAM : "har"
+    TEAM ||--o{ PLAYER : "har"
+    TEAM ||--o{ MATCH : "team1"
+    TEAM ||--o{ MATCH : "team2"
 
-    TURNERING {
-        int id PK
-        string navn
-        date dato
+    USER {
+        string name
+        string role
+        string password
     }
-    LAG {
-        int id PK
-        string navn
-        int turnering_id FK
+
+    TOURNAMENT {
+        objectid _id PK
+        string name
+        date date
     }
-    SPILLER {
-        int id PK
-        string navn
-        int alder
-        int lag_id FK
+
+    TEAM {
+        objectid _id PK
+        string name
+        objectid tournament FK
     }
-    KAMP {
-        int id PK
-        int lag1_id FK
-        int lag2_id FK
-        datetime tidspunkt
-        string resultat
+
+    PLAYER {
+        objectid _id PK
+        string name
+        int age
+        objectid team FK
     }
-    BRUKER {
-        int id PK
-        string navn
-        string rolle
-        string passord
+
+    MATCH {
+        objectid _id PK
+        objectid team1 FK
+        objectid team2 FK
+        datetime time
+        string result
     }
 ```
 
-### 3. Brukerflow
+### 3. Brukerflyt
 
 ```mermaid
 flowchart TD
-    A[Start] --> B{Publikum?}
-    B -->|Ja| C[Se kampoppsett/resultater]
-    B -->|Nei| D[Login]
-    D --> E{Rolle?}
-    E -->|Admin| F[Full CRUD]
-    E -->|Lagleder| G[Eget lag + spillere]
-    E -->|Deltaker| H[Meld på lag]
-    F --> I[Dashboard]
+    A["Start"] --> B["Hjemmeside"]
+    B --> C["/login"]
+    C --> D["Velkomst / dashboard"]
+    D --> E{"Rolle?"}
+    E -->|admin| F["Admin-tilgang"]
+    E -->|leader| G["Lagleder-tilgang"]
+    E -->|participant| H["Lesetilgang"]
+    E -->|publikum| H
+
+    F --> I["Turneringer"]
+    F --> J["Lag"]
+    F --> K["Spillere"]
+    F --> L["Kamper"]
+    F --> M["Brukerhåndtering"]
+    F --> N["Rolle-assignering"]
+
     G --> I
-    H --> I
-    C --> I
-    I --> J{Logout?}
+    G --> J
+    G --> K
+    G --> L
+
+    H --> O["Se turneringer"]
+    H --> P["Se lag"]
+    H --> Q["Se spillere"]
+    H --> R["Se kamper"]
+
+    M --> S["Opprett ny bruker"]
+    N --> T["Endre rolle"]
+    S --> H
+    T --> H
+
+    I --> U["Logout"]
+    J --> U
+    K --> U
+    L --> U
+    M --> U
+    N --> U
+    O --> U
+    P --> U
+    Q --> U
+    R --> U
 ```
+
+```mermaid
+flowchart TD
+    A["Innlogging"] --> B{"Hvem er brukeren?"}
+    B -->|Admin| C["Admin-dashboard"]
+    B -->|Leader| D["Lagleder-dashboard"]
+    B -->|Participant| E["Publikum-visning"]
+    B -->|Ny bruker| F["Registrer bruker"]
+
+    C --> G["Kan gjøre alt leader kan"]
+    C --> H["Opprette bruker"]
+    C --> I["Endre rolle på bruker"]
+    C --> J["Gi publikum-bruker rollen leader"]
+
+    D --> K["Turneringer"]
+    D --> L["Lag"]
+    D --> M["Spillere"]
+    D --> N["Kamper"]
+
+    E --> K
+    E --> L
+    E --> M
+    E --> N
+    F --> E
+    H --> C
+    I --> C
+    J --> D
+```
+
+**Tilgangsnivåer:**
+- **Publikum / participant** kan bare se innhold
+- **Ny bruker** registreres med samme lesetilgang som publikum
+- **Lagleder / leader** kan se og jobbe med turneringer, lag, spillere og kamper
+- **Admin** får alt lagleder kan gjøre, pluss brukerhåndtering og rolle-assignering
+- **Admin** kan endre en bruker fra publikum til for eksempel `leader`
 
 ### 4. Personvern (GDPR)
 
@@ -89,39 +157,75 @@ flowchart TD
 ### 5. Drift / Arkitektur
 
 ```mermaid
-graph TB
-    subgraph INTERNETT["Internet"]
-        BRUKER[Brukere/Publikum]
+graph TD
+    Modem((Modem)) --> Firewall{Firewall}
+    Firewall --> L3Core01[L3 Core Switch 01]
+    L3Core01 --> PVE_Back[PVE-Backend Server]
+
+    subgraph PVE_Backend_Hypervisor [PVE-Backend Virtual Environment]
+        VRouter[Virtual Router]
+
+        subgraph V_VLAN_1202 [Virtual VLAN 1202]
+            VSwitch2[vSwitch 1202]
+            VSwitch2 --> VM230[230 eksam-node<br/>10.12.2.230/24]
+            VSwitch2 --> VM231[231 eksam-mongodb<br/>10.12.2.231/24]
+        end
+        
+        PVE_Back --> VRouter
+        VRouter --> VSwitch2
     end
-    BRUKER -->|HTTPS:443| WEBSERVER[Node.js server<br/>10.12.2.230:3000]
-    WEBSERVER -->|Intern:27017| MONGODB[MongoDB<br/>10.12.2.231]
-    
-    subgraph "Internett (privat)"
-        ADMINPC[Admin-PC 10.12.2.20]
-    end
-    ADMINPC -.->|VPN/LAN| WEBSERVER
 ```
 
+**IP-plan for eksamensmiljøet:**
+
+| Komponent | IP-adresse | Subnett | Gateway |
+|-----------|------------|---------|---------|
+| `230 eksam-node` | `10.12.2.230` | `255.255.255.0` (/24) | `10.12.2.1` |
+| `231 eksam-mongodb` | `10.12.2.231` | `255.255.255.0` (/24) | `10.12.2.1` |
+| `vSwitch 1202` | - | `10.12.2.0/24` | `10.12.2.1` |
+
 **Tech stack:**
-- **Frontend:** HTML/CSS/JS (vanilla)
+- **Frontend:** EJS, CSS, og litt klient-JS
 - **Backend:** Node.js/Express + session auth
-- **Database:** MongoDB på egen VM
+- **Database:** MongoDB på egen VM (`231 eksam-mongodb`)
 - **Deployment:** PM2 + Nginx reverse proxy
 
-### 6. IP-plan
+### 6. Nettverk / VM-oppsett
 
-| Enhet | Rolle | IP-adresse | Port | Kommentar |
-|-------|-------|------------|------|-----------|
-| **Webserver** | Nettsted + backend | **10.12.2.230** | 3000 / 443 | Offentlig tilgang via web |
-| **Database-server** | Database | **10.12.2.231** | 27017 | Kun intern tilgang fra webserver |
-| **Admin-PC** | Administrasjon | 10.12.2.20 | - | Valgfri intern klient |
+Nettverket er beskrevet som et fysisk og virtuelt mermaid-diagram i stedet for en tradisjonell IP-tabell. Det gir et bedre bilde av hvordan VM-ene, switchene og VLAN-ene henger sammen.
 
-**Nettverk:**
-- Subnett: `10.12.2.0/24`
-- Firewall: Database kun fra `10.12.2.230`
-- Backup: Daglig database-backup til trygg lagring
+**Kort forklart:**
+- Modem går inn i firewall, videre til L3 Core Switch 01
+- L3 Core Switch 01 går videre til PVE-Backend Server
+- PVE-Backend Virtual Environment er detaljert videre med Virtual Router og vSwitch 1202
+- Under vSwitch 1202 ligger `230 eksam-node` og `231 eksam-mongodb`
+- Dette er den delen som skal vises i README-previewen
 
-### 7. Feilhåndtering
+**Relevante VM-er for dette prosjektet:**
+- `230 eksam-node` kjører Node/Express-appen
+- `231 eksam-mongodb` kjører MongoDB i miljøet
+- Tjenestene kommuniserer over intern nettverkstrafikk, ikke direkte ut på internett
+
+### 7. Sider og ruter
+
+- `/` - Hjemmeside med innloggingsstatus
+- `/login` - egen innloggingsside
+- `/readme` - rendret README-preview med Mermaid-diagrammer
+- `/admin` - admin-dashboard for full oversikt og hurtighandlinger
+- `/tournaments` - turneringer
+- `/teams` - lag
+- `/players` - spillere
+- `/matches` - kamper
+
+### 8. Login og tilgang
+
+- Innlogging skjer med `name` + `password`
+- Session håndteres med `express-session`
+- Admin kan åpne `/admin`
+- Roller som ikke er admin blir stoppet fra admin-siden på serversiden
+- Demo-brukere opprettes automatisk ved oppstart
+
+### 9. Feilhåndtering
 
 | Feil | Løsning |
 |------|---------|
@@ -130,7 +234,7 @@ graph TB
 | Internett ned | Lokal admin-tilgang via LAN |
 | Passord glemt | Admin reset via DB |
 
-### 8. Brukerveiledning
+### 10. Brukerveiledning
 
 1. **Publikum:** Gå til nettsiden → Se kamper direkte
 2. **Login:** Brukernavn/passord (demo over)
@@ -139,7 +243,7 @@ graph TB
 5. **Resultater:** Admin oppdaterer live
 6. **Oppdater:** Klikk "Oppdater" eller F5
 
-### 9. Prosjektplan (3 uker)
+### 11. Prosjektplan (3 uker)
 
 | Uke | Aktiviteter |
 |-----|-------------|
@@ -147,7 +251,7 @@ graph TB
 | **2** | Backend API, frontend, roller |
 | **3** | Testing, dokumentasjon, deployment |
 
-### 10. Testing
+### 12. Testing
 
 ✅ **Testet:**
 - [x] Alle roller + rettigheter

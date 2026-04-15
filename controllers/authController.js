@@ -37,6 +37,29 @@ async function login(req, res) {
   return res.redirect('/?success=' + encodeURIComponent(`Velkommen, ${user.name}.`));
 }
 
+async function register(req, res) {
+  const { name, password } = req.body || {};
+  const displayName = String(name || '').trim();
+  const rawPassword = String(password || '').trim();
+
+  if (!displayName || !rawPassword) {
+    return res.redirect('/login?error=' + encodeURIComponent('Navn og passord er påkrevd.'));
+  }
+
+  const existingUser = await userModel.findByName(displayName);
+  if (existingUser) {
+    return res.redirect('/login?error=' + encodeURIComponent('Navnet er allerede i bruk.'));
+  }
+
+  await userModel.createUser({
+    name: displayName,
+    password: rawPassword,
+    role: 'participant',
+  });
+
+  return res.redirect('/login?success=' + encodeURIComponent('Brukeren ble opprettet. Den har kun publikumstilgang til å begynne med.'));
+}
+
 async function logout(req, res) {
   req.session.destroy(() => {
     res.redirect('/?success=' + encodeURIComponent('Du er logget ut.'));
@@ -49,6 +72,7 @@ async function me(req, res) {
 
 module.exports = {
   login,
+  register,
   logout,
   me,
 };

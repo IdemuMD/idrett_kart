@@ -383,6 +383,17 @@ th {
   align-items: end;
 }
 
+.role-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.compact-form {
+  max-width: 100%;
+}
+
 .status {
   margin: 0;
   border-radius: 12px;
@@ -434,6 +445,164 @@ th {
 
 .login-card h3 {
   margin-bottom: 8px;
+}
+
+.readme-hero {
+  background:
+    linear-gradient(135deg, rgba(27, 139, 115, 0.14), rgba(201, 111, 45, 0.08)),
+    rgba(255, 255, 255, 0.88);
+}
+
+.readme-shell {
+  padding: 0;
+  overflow: hidden;
+}
+
+.readme-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(248, 251, 250, 0.92);
+}
+
+.readme-toolbar h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.markdown-body {
+  padding: 24px 22px 28px;
+  background: #fff;
+  color: #1f2328;
+  line-height: 1.6;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 1.35em;
+  margin-bottom: 0.55em;
+  line-height: 1.25;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body blockquote {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: collapse;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #d0d7de;
+  padding: 6px 13px;
+}
+
+.markdown-body th {
+  background: #f6f8fa;
+}
+
+.markdown-body code {
+  background: rgba(175, 184, 193, 0.2);
+  border: 0;
+  padding: 0.2em 0.4em;
+}
+
+.markdown-body pre {
+  background: #0d1117;
+  color: #e6edf3;
+  border-radius: 12px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #d0d7de;
+  padding-left: 16px;
+  color: var(--muted);
+}
+
+.markdown-body img {
+  max-width: 100%;
+}
+
+.markdown-body .mermaid {
+  padding: 16px;
+  border: 1px solid #d0d7de;
+  border-radius: 12px;
+  background: #f6f8fa;
+  overflow-x: auto;
+}
+
+.readme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.readme-panel {
+  border: 1px solid #dbe8e4;
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(145deg, #f8fcfa, #ffffff);
+  box-shadow: var(--shadow-soft);
+}
+
+.readme-list {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: var(--ink);
+}
+
+.code-frame {
+  margin-top: 10px;
+  border-radius: 16px;
+  border: 1px solid #dbe8e4;
+  background: #0f1f1b;
+  color: #d7efe8;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.code-frame pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .shortcut-grid {

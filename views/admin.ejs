@@ -135,6 +135,8 @@
         <tr>
           <th>Navn</th>
           <th>Rolle</th>
+          <th>Endre rolle</th>
+          <th>Slett</th>
         </tr>
       </thead>
       <tbody>
@@ -142,6 +144,25 @@
           <tr>
             <td><%= user.name %></td>
             <td><%= user.role %></td>
+            <td>
+              <form action="/admin/users/<%= user.id %>/role" method="post" class="role-form">
+                <select name="role" aria-label="Velg rolle for <%= user.name %>">
+                  <% roleOptions.forEach((role) => { %>
+                    <option value="<%= role %>" <%= role === user.role ? 'selected' : '' %>><%= role %></option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="secondary">Lagre</button>
+              </form>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.id !== user.id) { %>
+                <form action="/admin/users/<%= user.id %>/delete" method="post" class="role-form" onsubmit="return confirm('Slette <%= user.name %>?');">
+                  <button type="submit" class="secondary">Slett</button>
+                </form>
+              <% } else { %>
+                <span class="muted">-</span>
+              <% } %>
+            </td>
           </tr>
         <% }) %>
       </tbody>
