@@ -17,9 +17,11 @@ Dette er et komplett turneringssystem for idrettsarrangører med rollebasert til
 `leader / leader123`<br>
 `participant / participant123`
 
+
 ### 1.1 Issueboard
 
 Se en kort oversikt over hva som er gjort i [`ISSUEBOARD.md`](./ISSUEBOARD.md).
+
 
 ### 2. Datamodell (MongoDB)
 
@@ -111,18 +113,40 @@ flowchart TD
     R --> U
 ```
 
+```mermaid
+flowchart TD
+    A["Innlogging"] --> B{"Hvem er brukeren?"}
+    B -->|Admin| C["Admin-dashboard"]
+    B -->|Leader| D["Lagleder-dashboard"]
+    B -->|Participant| E["Publikum-visning"]
+    B -->|Ny bruker| F["Registrer bruker"]
+
+    C --> G["Kan gjøre alt leader kan"]
+    C --> H["Opprette bruker"]
+    C --> I["Endre rolle på bruker"]
+    C --> J["Gi publikum-bruker rollen leader"]
+
+    D --> K["Turneringer"]
+    D --> L["Lag"]
+    D --> M["Spillere"]
+    D --> N["Kamper"]
+
+    E --> K
+    E --> L
+    E --> M
+    E --> N
+    F --> E
+    H --> C
+    I --> C
+    J --> D
+```
+
 **Tilgangsnivåer:**
 - **Publikum / participant** kan bare se innhold
 - **Ny bruker** registreres med samme lesetilgang som publikum
 - **Lagleder / leader** kan se og jobbe med turneringer, lag, spillere og kamper
 - **Admin** får alt lagleder kan gjøre, pluss brukerhåndtering og rolle-assignering
 - **Admin** kan endre en bruker fra publikum til for eksempel `leader`
-
-**Brukerregistrering og roller:**
-- Ny bruker opprettes via `/register`
-- Ny bruker får automatisk rollen `participant`
-- Admin kan oppdatere roller i admin-panelet
-- Admin kan også slette brukere
 
 ### 4. Personvern (GDPR)
 
@@ -261,3 +285,4 @@ npm start
 ---
 
 **Status:** ✅ Ferdig og testet eksamensløsning.
+
