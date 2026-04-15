@@ -1,15 +1,33 @@
 const matchModel = require('../models/matchModel');
 const teamModel = require('../models/teamModel');
 
-async function create(req, res) {
-  const { tournamentId, team1Id, team2Id, kickoff } = req.body || {};
+function redirectWithMessage(res, path, message, type = 'error') {
+  return res.redirect(`${path}?${type}=${encodeURIComponent(message)}`);
+}
 
-  if (!tournamentId || !team1Id || !team2Id || !kickoff) {
-    return res.status(400).json({ error: 'Turnering, lag og tidspunkt er påkrevd.' });
+async function index(req, res) {
+  const [matches, teams] = await Promise.all([
+    matchModel.list(),
+    teamModel.list(),
+  ]);
+
+  return res.render('matches', {
+    error: req.query.error || '',
+    matches,
+    success: req.query.success || '',
+    teams,
+  });
+}
+
+async function create(req, res) {
+  const { team1Id, team2Id, time, result } = req.body || {};
+
+  if (!team1Id || !team2Id || !time) {
+    return redirectWithMessage(res, '/matches', 'Lag og tidspunkt er påkrevd.');
   }
 
   if (String(team1Id) === String(team2Id)) {
-    return res.status(400).json({ error: 'Et lag kan ikke spille mot seg selv.' });
+    return redirectWithMessage(res, '/matches', 'Et lag kan ikke spille mot seg selv.');
   }
 
   const [team1, team2] = await Promise.all([
@@ -18,37 +36,58 @@ async function create(req, res) {
   ]);
 
   if (!team1 || !team2) {
-    return res.status(404).json({ error: 'Ett eller begge lag finnes ikke.' });
+    return redirectWithMessage(res, '/matches', 'Ett eller begge lag finnes ikke.');
   }
 
-  if (String(team1.tournament_id) !== String(tournamentId) || String(team2.tournament_id) !== String(tournamentId)) {
-    return res.status(400).json({ error: 'Begge lag må tilhøre valgt turnering.' });
+  const parsedTime = new Date(String(time));
+  if (Number.isNaN(parsedTime.getTime())) {
+    return redirectWithMessage(res, '/matches', 'Tidspunktet er ugyldig.');
   }
 
-  const match = await matchModel.create(tournamentId, team1Id, team2Id, String(kickoff).trim());
+  await matchModel.create({
+    result: String(result || '').trim(),
+    team1: team1Id,
+    team2: team2Id,
+    time: parsedTime,
+  });
 
-  return res.status(201).json({ id: match._id.toString() });
+  return redirectWithMessage(res, '/matches', 'Kampen ble opprettet.', 'success');
 }
 
-async function updateResult(req, res) {
-  const { score1, score2 } = req.body || {};
-  const matchId = req.params.id;
+async function update(req, res) {
+  const { team1Id, team2Id, time, result } = req.body || {};
 
-  if (Number.isNaN(Number(score1)) || Number.isNaN(Number(score2))) {
-    return res.status(400).json({ error: 'Resultat må være heltall.' });
+  if (!team1Id || !team2Id || !time) {
+    return redirectWithMessage(res, '/matches', 'Lag og tidspunkt er påkrevd.');
   }
 
-  const match = await matchModel.findById(matchId);
-  if (!match) {
-    return res.status(404).json({ error: 'Fant ikke kamp.' });
+  if (String(team1Id) === String(team2Id)) {
+    return redirectWithMessage(res, '/matches', 'Et lag kan ikke spille mot seg selv.');
   }
 
-  await matchModel.updateResult(matchId, Number(score1), Number(score2));
+  const parsedTime = new Date(String(time));
+  if (Number.isNaN(parsedTime.getTime())) {
+    return redirectWithMessage(res, '/matches', 'Tidspunktet er ugyldig.');
+  }
 
-  return res.json({ ok: true });
+  await matchModel.update(req.params.id, {
+    result: String(result || '').trim(),
+    team1: team1Id,
+    team2: team2Id,
+    time: parsedTime,
+  });
+
+  return redirectWithMessage(res, '/matches', 'Kampen ble oppdatert.', 'success');
+}
+
+async function remove(req, res) {
+  await matchModel.remove(req.params.id);
+  return redirectWithMessage(res, '/matches', 'Kampen ble slettet.', 'success');
 }
 
 module.exports = {
   create,
-  updateResult,
+  index,
+  remove,
+  update,
 };

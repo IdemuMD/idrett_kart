@@ -1,0 +1,73 @@
+<%- include('partials/header', { pageTitle: 'Lag', currentUser }) %>
+<section class="card">
+  <h1>Lag</h1>
+  <%- include('partials/messages', { error, success }) %>
+  <% if (currentUser && currentUser.role === 'admin') { %>
+    <form action="/teams" method="post" class="form-grid" style="margin-bottom: 16px;">
+      <label>
+        Navn
+        <input name="name" type="text" required>
+      </label>
+      <label>
+        Turnering
+        <select name="tournamentId" required>
+          <option value="">Velg turnering</option>
+          <% tournaments.forEach((tournament) => { %>
+            <option value="<%= tournament.id %>"><%= tournament.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button type="submit">Opprett lag</button>
+    </form>
+  <% } %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Navn</th>
+          <th>Turnering</th>
+          <th>Handlinger</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% teams.forEach((team) => { %>
+          <tr>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                <input form="team-form-<%= team.id %>" name="name" type="text" value="<%= team.name %>" required>
+              <% } else { %>
+                <%= team.name %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <select form="team-form-<%= team.id %>" name="tournamentId" required>
+                    <% tournaments.forEach((tournament) => { %>
+                      <option value="<%= tournament.id %>" <%= String(team.tournament_id) === String(tournament.id) ? 'selected' : '' %>><%= tournament.name %></option>
+                    <% }) %>
+                  </select>
+              <% } else { %>
+                <%= team.tournament_name || '-' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <form id="team-form-<%= team.id %>" action="/teams/<%= team.id %>/update" method="post"></form>
+                  <button type="submit" form="team-form-<%= team.id %>">Lagre</button>
+                <form action="/teams/<%= team.id %>/delete" method="post" style="display:inline;">
+                  <button type="submit" class="secondary">Slett</button>
+                </form>
+              <% } else { %>
+                -
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+        <% if (!teams.length) { %>
+          <tr><td colspan="3">Ingen lag registrert ennå.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/footer') %>

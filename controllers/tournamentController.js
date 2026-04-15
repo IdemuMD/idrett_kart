@@ -1,60 +1,69 @@
-const matchModel = require('../models/matchModel');
-const teamModel = require('../models/teamModel');
 const tournamentModel = require('../models/tournamentModel');
-const userModel = require('../models/userModel');
+const teamModel = require('../models/teamModel');
+const matchModel = require('../models/matchModel');
 
-async function getPublicDashboard(req, res) {
-  const [tournaments, teams, matches] = await Promise.all([
-    tournamentModel.list(),
-    teamModel.list(),
-    matchModel.list(),
-  ]);
-
-  return res.json({
-    matches,
-    teams,
-    tournaments,
-  });
+function redirectWithMessage(res, path, message, type = 'error') {
+  return res.redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
 
-async function listLookups(req, res) {
-  const [tournaments, teams, matches] = await Promise.all([
-    tournamentModel.listSimple(),
-    teamModel.list(),
-    matchModel.list(),
-  ]);
-
-  const lookups = {
-    matches,
-    teams,
+async function index(req, res) {
+  const tournaments = await tournamentModel.list();
+  return res.render('tournaments', {
+    error: req.query.error || '',
+    success: req.query.success || '',
+    tournament: {},
     tournaments,
-  };
-
-  if (req.user?.role === 'admin') {
-    lookups.leaders = await userModel.listLeaders();
-  }
-
-  if (req.user?.role === 'leader') {
-    lookups.myTeams = await teamModel.listForLeader(req.user.id);
-  }
-
-  return res.json(lookups);
+  });
 }
 
 async function createTournament(req, res) {
   const { name, date } = req.body || {};
 
   if (!name || !date) {
-    return res.status(400).json({ error: 'Navn og dato er påkrevd.' });
+    return redirectWithMessage(res, '/tournaments', 'Navn og dato er påkrevd.');
   }
 
-  const tournament = await tournamentModel.create(String(name).trim(), String(date).trim());
+  const parsedDate = new Date(String(date));
+  if (Number.isNaN(parsedDate.getTime())) {
+    return redirectWithMessage(res, '/tournaments', 'Datoen er ugyldig.');
+  }
 
-  return res.status(201).json({ id: tournament._id.toString() });
+  await tournamentModel.create({
+    name: String(name).trim(),
+    date: parsedDate,
+  });
+
+  return redirectWithMessage(res, '/tournaments', 'Turneringen ble opprettet.', 'success');
+}
+
+async function updateTournament(req, res) {
+  const { name, date } = req.body || {};
+
+  if (!name || !date) {
+    return redirectWithMessage(res, '/tournaments', 'Navn og dato er påkrevd.');
+  }
+
+  const parsedDate = new Date(String(date));
+  if (Number.isNaN(parsedDate.getTime())) {
+    return redirectWithMessage(res, '/tournaments', 'Datoen er ugyldig.');
+  }
+
+  await tournamentModel.update(req.params.id, {
+    name: String(name).trim(),
+    date: parsedDate,
+  });
+
+  return redirectWithMessage(res, '/tournaments', 'Turneringen ble oppdatert.', 'success');
+}
+
+async function deleteTournament(req, res) {
+  await tournamentModel.remove(req.params.id);
+  return redirectWithMessage(res, '/tournaments', 'Turneringen ble slettet.', 'success');
 }
 
 module.exports = {
   createTournament,
-  getPublicDashboard,
-  listLookups,
+  deleteTournament,
+  index,
+  updateTournament,
 };

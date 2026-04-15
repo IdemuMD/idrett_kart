@@ -1,26 +1,96 @@
-<!DOCTYPE html>
-<html lang="no">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title || 'Idrettskart - Turneringssystem' %></title>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <div class="bg-shape bg-shape-1"></div>
-  <div class="bg-shape bg-shape-2"></div>
-  <main class="page">
-    <%- include('partials/nav') %>
-    <%- include('partials/hero') %>
-    <%- include('partials/authCard') %>
-    <%- include('partials/publicDashboard') %>
-    <%- include('partials/adminPanel') %>
-    <%- include('partials/leaderPanel') %>
-    <%- include('partials/participantPanel') %>
+<%- include('partials/header', { pageTitle, currentUser }) %>
 
-    <p id="status" class="status hidden"></p>
-  </main>
-  <script src="/app.js" defer></script>
-</body>
-</html>
+<section class="card hero">
+  <p class="eyebrow">Turneringssystem</p>
+  <h1>Administrer turneringer, lag, spillere og kamper</h1>
+  <p class="muted">Bruk EJS-sidene til å opprette og oppdatere data direkte i MongoDB.</p>
+  <% if (currentUser) { %>
+    <div class="hero-status">
+      <span>Du er logget inn som <strong><%= currentUser.name %></strong> (<%= currentUser.role %>).</span>
+      <form action="/logout" method="post">
+        <button type="submit" class="secondary">Logg ut</button>
+      </form>
+    </div>
+  <% } else { %>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+      <a class="hero-link" href="/login">Logg inn</a>
+      <a class="hero-link secondary-link" href="/tournaments">Se turneringer</a>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/messages', { error, success }) %>
+
+<section class="card">
+  <h2>Rask oversikt</h2>
+  <div class="tournament-cards">
+    <article class="tournament-card">
+      <p class="name">Turneringer</p>
+      <p><%= tournaments.length %> registrert(e)</p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Lag</p>
+      <p><%= teams.length %> registrert(e)</p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Kamper</p>
+      <p><%= matches.length %> registrert(e)</p>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Siste turneringer</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Navn</th>
+          <th>Dato</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tournaments.slice(0, 5).forEach((tournament) => { %>
+          <tr>
+            <td><%= tournament.name %></td>
+            <td><%= new Date(tournament.date).toLocaleDateString('nb-NO') %></td>
+          </tr>
+        <% }) %>
+        <% if (!tournaments.length) { %>
+          <tr><td colspan="2">Ingen turneringer registrert ennå.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Siste kamper</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Lag 1</th>
+          <th>Lag 2</th>
+          <th>Tid</th>
+          <th>Resultat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% matches.slice(0, 5).forEach((match) => { %>
+          <tr>
+            <td><%= match.team1_name || '-' %></td>
+            <td><%= match.team2_name || '-' %></td>
+            <td><%= new Date(match.time).toLocaleString('nb-NO') %></td>
+            <td><%= match.result || 'Ikke registrert' %></td>
+          </tr>
+        <% }) %>
+        <% if (!matches.length) { %>
+          <tr><td colspan="4">Ingen kamper registrert ennå.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

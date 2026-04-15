@@ -1,0 +1,47 @@
+<%- include('partials/header', { pageTitle, currentUser }) %>
+
+<section class="card hero login-hero">
+  <p class="eyebrow">Innlogging</p>
+  <h1>Logg inn for å administrere turneringen</h1>
+  <p class="muted">Admin kan opprette og redigere data. Lagleder og deltaker får tilgang til sine egne områder.</p>
+</section>
+
+<%- include('partials/messages', { error, success }) %>
+
+<section class="card login-layout">
+  <div class="login-panel">
+    <h2>Logg inn</h2>
+    <form action="/login" method="post" class="login-form">
+      <label>
+        Navn / brukernavn
+        <input name="username" type="text" placeholder="admin" required>
+      </label>
+      <label>
+        Passord
+        <input name="password" type="password" placeholder="••••••••" required>
+      </label>
+      <button type="submit">Logg inn</button>
+    </form>
+
+    <p class="muted login-note">
+      Demo:
+      <code>admin / admin123</code>
+      <code>leader / leader123</code>
+      <code>participant / participant123</code>
+    </p>
+  </div>
+
+  <aside class="login-aside">
+    <div class="login-card">
+      <p class="eyebrow">Sikker tilgang</p>
+      <h3>Beskyttede sider</h3>
+      <p class="muted">Admin-siden vises ikke i menyen for andre roller, og `/admin` er sperret på serversiden.</p>
+    </div>
+    <div class="login-card subtle">
+      <h3>Fortsatt offentlig</h3>
+      <p class="muted">Forsiden viser kampoppsett og resultater uten innlogging.</p>
+    </div>
+  </aside>
+</section>
+
+<%- include('partials/footer') %>

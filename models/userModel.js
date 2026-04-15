@@ -1,11 +1,11 @@
 const { User, toClientDoc } = require('./mongoModels');
 
-async function findByUsername(username) {
-  return User.findOne({ username }).lean();
+async function findByName(name) {
+  return User.findOne({ name: String(name).trim() });
 }
 
 async function findById(id) {
-  return User.findById(id).select('name username role age created_at').lean();
+  return User.findById(id).select('name role created_at updated_at').lean();
 }
 
 async function listUsers() {
@@ -14,17 +14,18 @@ async function listUsers() {
 }
 
 async function listLeaders() {
-  const leaders = await User.find({ role: 'leader' })
-    .select('name username role created_at')
-    .sort({ name: 1 })
-    .lean();
-
+  const leaders = await User.find({ role: 'leader' }).sort({ name: 1 }).lean();
   return leaders.map(toClientDoc);
 }
 
+async function createUser(data) {
+  return User.create(data);
+}
+
 module.exports = {
+  createUser,
   findById,
-  findByUsername,
+  findByName,
   listLeaders,
   listUsers,
 };

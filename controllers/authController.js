@@ -9,46 +9,37 @@ function publicUser(user) {
   return {
     id: user.id,
     name: user.name,
-    username: user.username,
     role: user.role,
-    age: user.age ?? null,
   };
 }
 
 async function login(req, res) {
-  const { username, password } = req.body || {};
+  const { username, name, password } = req.body || {};
+  const loginName = String(username || name || '').trim();
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Brukernavn og passord er påkrevd.' });
+  if (!loginName || !password) {
+    return res.redirect('/login?error=' + encodeURIComponent('Navn og passord er påkrevd.'));
   }
 
-  const user = await userModel.findByUsername(String(username).trim());
+  const user = await userModel.findByName(loginName);
 
   if (!user) {
-    return res.status(401).json({ error: 'Ugyldig brukernavn eller passord.' });
+    return res.redirect('/login?error=' + encodeURIComponent('Ugyldig navn eller passord.'));
   }
 
-  const isPasswordValid = await bcrypt.compare(String(password), user.password_hash);
+  const isPasswordValid = await bcrypt.compare(String(password), user.password);
   if (!isPasswordValid) {
-    return res.status(401).json({ error: 'Ugyldig brukernavn eller passord.' });
+    return res.redirect('/login?error=' + encodeURIComponent('Ugyldig navn eller passord.'));
   }
 
   req.session.userId = user._id.toString();
 
-  return res.json({
-    user: publicUser({
-      id: user._id.toString(),
-      name: user.name,
-      username: user.username,
-      role: user.role,
-      age: user.age,
-    }),
-  });
+  return res.redirect('/?success=' + encodeURIComponent(`Velkommen, ${user.name}.`));
 }
 
 async function logout(req, res) {
   req.session.destroy(() => {
-    res.json({ ok: true });
+    res.redirect('/?success=' + encodeURIComponent('Du er logget ut.'));
   });
 }
 

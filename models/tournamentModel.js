@@ -1,41 +1,17 @@
 const { Tournament, toClientDoc } = require('./mongoModels');
 
 async function list() {
-  const tournaments = await Tournament.aggregate([
-    {
-      $lookup: {
-        from: 'teams',
-        localField: '_id',
-        foreignField: 'tournament_id',
-        as: 'teams',
-      },
-    },
-    {
-      $addFields: {
-        team_count: { $size: '$teams' },
-      },
-    },
-    {
-      $project: {
-        teams: 0,
-      },
-    },
-    {
-      $sort: {
-        date: 1,
-        _id: 1,
-      },
-    },
-  ]);
-
-  return tournaments.map((tournament) => ({
-    ...toClientDoc(tournament),
-    team_count: tournament.team_count || 0,
-  }));
+  const tournaments = await Tournament.find().sort({ date: 1, name: 1 }).lean();
+  return tournaments.map(toClientDoc);
 }
 
-async function create(name, date) {
-  return Tournament.create({ name, date });
+async function findById(id) {
+  const tournament = await Tournament.findById(id).lean();
+  return tournament ? toClientDoc(tournament) : null;
+}
+
+async function create(data) {
+  return Tournament.create(data);
 }
 
 async function existsById(id) {
@@ -47,9 +23,23 @@ async function listSimple() {
   return tournaments.map(toClientDoc);
 }
 
+async function update(id, data) {
+  return Tournament.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+}
+
+async function remove(id) {
+  return Tournament.findByIdAndDelete(id);
+}
+
 module.exports = {
   create,
+  findById,
   existsById,
   list,
   listSimple,
+  remove,
+  update,
 };

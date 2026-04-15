@@ -1,0 +1,194 @@
+<%- include('partials/header', { pageTitle: 'Admin', currentUser }) %>
+<section class="card">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Adminpanel</p>
+      <h1>Kontrollsenter</h1>
+    </div>
+    <div class="admin-actions">
+      <a class="hero-link secondary-link" href="/tournaments">Turneringer</a>
+      <a class="hero-link secondary-link" href="/teams">Lag</a>
+      <a class="hero-link secondary-link" href="/players">Spillere</a>
+      <a class="hero-link secondary-link" href="/matches">Kamper</a>
+    </div>
+  </div>
+  <%- include('partials/messages', { error, success }) %>
+  <div class="tournament-cards">
+    <article class="tournament-card">
+      <p class="name">Brukere</p>
+      <p><%= users.length %></p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Turneringer</p>
+      <p><%= tournaments.length %></p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Lag</p>
+      <p><%= teams.length %></p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Spillere</p>
+      <p><%= players.length %></p>
+    </article>
+    <article class="tournament-card">
+      <p class="name">Kamper</p>
+      <p><%= matches.length %></p>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Hurtigopprettelse</h2>
+  <div class="panel-grid">
+    <form action="/tournaments" method="post" class="panel-box">
+      <h3>Ny turnering</h3>
+      <label>Navn <input name="name" type="text" required></label>
+      <label>Dato <input name="date" type="date" required></label>
+      <button type="submit">Opprett</button>
+    </form>
+
+    <form action="/teams" method="post" class="panel-box">
+      <h3>Nytt lag</h3>
+      <label>Navn <input name="name" type="text" required></label>
+      <label>Turnering
+        <select name="tournamentId" required>
+          <option value="">Velg turnering</option>
+          <% tournaments.forEach((tournament) => { %>
+            <option value="<%= tournament.id %>"><%= tournament.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button type="submit">Opprett</button>
+    </form>
+
+    <form action="/players" method="post" class="panel-box">
+      <h3>Ny spiller</h3>
+      <label>Navn <input name="name" type="text" required></label>
+      <label>Alder <input name="age" type="number" min="1" required></label>
+      <label>Lag
+        <select name="teamId" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button type="submit">Opprett</button>
+    </form>
+
+    <form action="/matches" method="post" class="panel-box">
+      <h3>Ny kamp</h3>
+      <label>Lag 1
+        <select name="team1Id" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Lag 2
+        <select name="team2Id" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Tid <input name="time" type="datetime-local" required></label>
+      <label>Resultat <input name="result" type="text" placeholder="Valgfritt"></label>
+      <button type="submit">Opprett</button>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Raske snarveier</h2>
+  <div class="shortcut-grid">
+    <a href="/login" class="shortcut-card">
+      <strong>Logg inn</strong>
+      <span>Åpne innloggingssiden</span>
+    </a>
+    <a href="/tournaments" class="shortcut-card">
+      <strong>Turneringer</strong>
+      <span>Rediger turneringer</span>
+    </a>
+    <a href="/teams" class="shortcut-card">
+      <strong>Lag</strong>
+      <span>Administrer lag</span>
+    </a>
+    <a href="/players" class="shortcut-card">
+      <strong>Spillere</strong>
+      <span>Legg til og endre spillere</span>
+    </a>
+    <a href="/matches" class="shortcut-card">
+      <strong>Kamper</strong>
+      <span>Sett opp og oppdater kamper</span>
+    </a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Brukere</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Navn</th>
+          <th>Rolle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach((user) => { %>
+          <tr>
+            <td><%= user.name %></td>
+            <td><%= user.role %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Nylig registrert</h2>
+  <div class="panel-grid">
+    <div class="panel-box">
+      <h3>Turneringer</h3>
+      <% recentTournaments.forEach((tournament) => { %>
+        <div class="mini-row">
+          <span><%= tournament.name %></span>
+          <span><%= tournament.displayDate %></span>
+        </div>
+      <% }) %>
+    </div>
+    <div class="panel-box">
+      <h3>Lag</h3>
+      <% recentTeams.forEach((team) => { %>
+        <div class="mini-row">
+          <span><%= team.name %></span>
+          <span><%= team.tournament_name || '-' %></span>
+        </div>
+      <% }) %>
+    </div>
+    <div class="panel-box">
+      <h3>Spillere</h3>
+      <% recentPlayers.forEach((player) => { %>
+        <div class="mini-row">
+          <span><%= player.name %></span>
+          <span><%= player.team_name || '-' %></span>
+        </div>
+      <% }) %>
+    </div>
+    <div class="panel-box">
+      <h3>Kamper</h3>
+      <% recentMatches.forEach((match) => { %>
+        <div class="mini-row">
+          <span><%= match.team1_name %> vs <%= match.team2_name %></span>
+          <span><%= match.displayTime %></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
