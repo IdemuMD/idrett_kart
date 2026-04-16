@@ -17,7 +17,7 @@ sudo systemctl start mongod
 sudo systemctl enable mongod
 
 # Config for remote access (10.12.2.230 only)
-sudo sed -i "s/bindIp: 127.0.0.1/bindIp: 127.0.0.1,10.12.2.231/" /etc/mongod.conf
+sudo sed -i "s/bindIp: 127.0.0.1/bindIp: 0.0.0.0/" /etc/mongod.conf
 sudo systemctl restart mongod
 
 echo "MongoDB ready!"
