@@ -314,3 +314,41 @@ npm start
 
 **Status:** ✅ Ferdig og testet eksamensløsning.
 
+## 13. Sikkerhetsanalyse
+
+Denne analysen ser på sikkerheten i løsningen som en helhet, inkludert applikasjon, nettverk og enkeltmaskiner i systemet.
+
+### Applikasjonssikkerhet
+
+Applikasjonen bruker rollebasert tilgang (admin, lagleder, deltaker og publikum). Dette hindrer at brukere får tilgang til funksjoner de ikke skal ha. For eksempel kan kun admin opprette brukere, turneringer og endre roller.
+
+Innlogging skjer med brukernavn og passord, og passord lagres kryptert med hashing (bcrypt). Dette gjør at passord ikke lagres i klartekst i databasen.
+
+En potensiell svakhet er manglende avansert autentisering som 2FA, samt at session-baserte autentiseringer kan være sårbare dersom de ikke håndteres riktig (for eksempel session hijacking).
+
+### Nettverkssikkerhet
+
+Systemet er plassert i et virtuelt VLAN (1202), som gir isolasjon fra andre nettverk. Dette reduserer risikoen for direkte tilgang fra eksterne systemer.
+
+Videre kunne nettverket vært segmentert med en brannmur ved bruk av [OPNsense](chatgpt://generic-entity?number=0). Dette ville gjort det mulig å kontrollere trafikk mellom ulike subnet, for eksempel mellom webserver og database.
+
+En svakhet i dagens løsning er at webapplikasjon og database ligger i samme interne nettverk, som betyr at dersom en angriper får tilgang til én maskin, kan det være enklere å bevege seg videre i systemet.
+
+### Maskinsikkerhet (VM-nivå)
+
+Systemet kjører på virtuelle maskiner i et PVE-miljø. Dette gir god isolasjon fra fysisk maskinvare, men VM-er deler fortsatt samme host.
+
+Mulige risikoer:
+- Dersom hypervisor kompromitteres, kan alle VM-er påvirkes
+- Feil konfigurasjon av nettverk kan gi uønsket tilgang mellom VM-er
+- Manglende oppdateringer kan gi sårbarheter i både Node.js og MongoDB
+
+### Helhetsvurdering
+
+Sikkerheten i løsningen er god for et skoleprosjekt, spesielt med rollebasert tilgang og isolert VLAN. Likevel mangler det full nettverkssegmentering og avansert firewall-regulering.
+
+For en mer produksjonsklar løsning ville man:
+- delt nettverket i flere VLAN/subnett
+- brukt brannmur (OPNsense) til å kontrollere all trafikk
+- implementert strengere autentisering (f.eks. 2FA)
+- logget og overvåket trafikk og innlogginger
