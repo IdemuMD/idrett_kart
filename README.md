@@ -212,6 +212,34 @@ Nettverket er beskrevet som et fysisk og virtuelt mermaid-diagram i stedet for e
 - `231 eksam-mongodb` kjører MongoDB i miljøet
 - Tjenestene kommuniserer over intern nettverkstrafikk, ikke direkte ut på internett
 
+**6.1 Nettverkssegmentering (teoretisk og videreutvikling)**
+```mermaid
+flowchart TD
+    Internet --> Firewall
+    Firewall --> VLAN1202
+
+    VLAN1202 --> OPNsense
+
+    subgraph OPNsense_Firewall
+        OPNsense[OPNsense VM - Gateway]
+    end
+
+    subgraph App_Network
+        Node[Node.js Web App - 10.12.10.230]
+    end
+
+    subgraph DB_Network
+        MongoDB[MongoDB Server - 10.12.20.231]
+    end
+
+    OPNsense --> Node
+    OPNsense --> MongoDB
+
+    Node -->|Tillatt trafikk| MongoDB
+    MongoDB -.->|Blokkert direkte tilgang| Node
+```
+- Hvis opnsense hadde blitt brukt så ville nettverksdiagrammet sett slik ut
+
 ### 7. Sider og ruter
 
 - `/` - Hjemmeside med innloggingsstatus
