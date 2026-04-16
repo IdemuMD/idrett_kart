@@ -44,6 +44,7 @@ app.use('/', pageRoutes);
 app.use('/', authRoutes);
 app.use('/tournaments', tournamentRoutes);
 app.use('/teams', teamRoutes);
+app.use('/leader', require('../routes/leaderRoutes'));
 app.use('/players', playerRoutes);
 app.use('/matches', matchRoutes);
 app.use('/admin', adminRoutes);

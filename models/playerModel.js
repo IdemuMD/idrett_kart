@@ -42,11 +42,23 @@ async function remove(id) {
   return Player.findByIdAndDelete(id);
 }
 
+async function findForParticipantByName(participantName) {
+  const name = String(participantName || '').trim();
+  if (!name) return [];
+
+  const players = await Player.find({ name })
+    .populate('team', 'name')
+    .lean();
+
+  return players.map(mapPlayer);
+}
+
 module.exports = {
   create,
   findById,
   list,
   listForAdmin,
+  findForParticipantByName,
   remove,
   update,
 };

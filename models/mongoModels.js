@@ -17,6 +17,8 @@ const teamSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     tournament: { type: mongoose.Schema.Types.ObjectId, ref: 'Tournament', required: true },
+    contact_leader: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    contact_phone: { type: String, trim: true },
   },
   schemaOptions,
 );

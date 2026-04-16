@@ -26,6 +26,11 @@ async function getOverview(req, res) {
       return Number.isNaN(date.getTime()) ? 'Ugyldig tid' : date.toLocaleString('nb-NO');
     };
 
+    const now = new Date();
+    const cutoff = now.getTime() + 48 * 60 * 60 * 1000;
+    const pendingTournaments = tournaments.filter(t => new Date(t.date).getTime() < cutoff)
+      .filter(t => matches.some(m => m.result === '' && new Date(m.time) > now));
+
     const viewModel = {
       currentUser: req.user,
       error: req.query.error || '',
@@ -35,6 +40,7 @@ async function getOverview(req, res) {
       teams: Array.isArray(teams) ? teams : [],
       tournaments: Array.isArray(tournaments) ? tournaments : [],
       matches: Array.isArray(matches) ? matches : [],
+      pendingTournaments,
       recentMatches: (Array.isArray(matches) ? matches : []).slice(0, 5).map((match) => ({
         ...match,
         displayTime: safeTime(match.time),

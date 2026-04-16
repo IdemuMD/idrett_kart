@@ -188,6 +188,8 @@ Nettverket er beskrevet som et fysisk og virtuelt mermaid-diagram i stedet for e
 - `231 eksam-mongodb` kjører MongoDB i miljøet
 - Tjenestene kommuniserer over intern nettverkstrafikk, ikke direkte ut på internett
 
+
+
 ### 7. Sider og ruter
 
 - `/` - Hjemmeside med innloggingsstatus

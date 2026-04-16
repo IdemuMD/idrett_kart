@@ -4,9 +4,9 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', teamController.index);
+router.get('/', requireAuth, requireRole('admin', 'leader'), teamController.index);
 router.post('/', requireAuth, requireRole('admin'), teamController.create);
-router.post('/:id/update', requireAuth, requireRole('admin'), teamController.update);
+router.post('/:id/update', requireAuth, requireRole('admin', 'leader'), teamController.update);
 router.post('/:id/delete', requireAuth, requireRole('admin'), teamController.remove);
 
 module.exports = router;

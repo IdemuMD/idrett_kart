@@ -23,6 +23,51 @@
       </label>
       <button type="submit">Opprett spiller</button>
     </form>
+  <% } else if (currentUser && currentUser.role === 'leader') { %>
+    <form action="/leader/players" method="post" class="form-grid" style="margin-bottom: 16px;">
+      <label>
+        Navn
+        <input name="name" type="text" required>
+      </label>
+      <label>
+        Alder
+        <input name="age" type="number" min="1" required>
+      </label>
+      <label>
+        Lag
+        <select name="teamId" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button type="submit">Legg til spiller</button>
+    </form>
+  <% } else if (currentUser && currentUser.role === 'participant') { %>
+    <% if (players && players.length > 0) { %>
+      <p class="muted">
+        Du er registrert på lag: <strong><%= players[0].team_name || '-' %></strong>.
+      </p>
+    <% } else { %>
+      <form action="/players/join" method="post" class="form-grid" style="margin-bottom: 16px;">
+        <p class="muted">Du melder deg på som <strong><%= currentUser.name %></strong>.</p>
+        <label>
+          Alder
+          <input name="age" type="number" min="1" required>
+        </label>
+        <label>
+          Lag
+          <select name="teamId" required>
+            <option value="">Velg lag</option>
+            <% teams.forEach((team) => { %>
+              <option value="<%= team.id %>"><%= team.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <button type="submit">Meld på</button>
+      </form>
+    <% } %>
   <% } %>
   <div class="table-wrap">
     <table>

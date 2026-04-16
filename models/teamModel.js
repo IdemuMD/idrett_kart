@@ -6,12 +6,15 @@ function mapTeam(team) {
     ...client,
     tournament_id: team.tournament?._id?.toString() || team.tournament?.toString?.() || client.tournament || null,
     tournament_name: team.tournament?.name || client.tournament_name || '',
+    contact_leader_id: team.contact_leader?._id?.toString() || team.contact_leader?.toString?.() || client.contact_leader || null,
+    contact_leader_name: team.contact_leader?.name || client.contact_leader_name || '',
   };
 }
 
 async function list() {
   const teams = await Team.find()
     .populate('tournament', 'name date')
+    .populate('contact_leader', 'name')
     .sort({ name: 1 })
     .lean();
 
@@ -21,6 +24,7 @@ async function list() {
 async function listForTournament(tournamentId) {
   const teams = await Team.find({ tournament: tournamentId })
     .populate('tournament', 'name date')
+    .populate('contact_leader', 'name')
     .sort({ name: 1 })
     .lean();
 
@@ -28,7 +32,7 @@ async function listForTournament(tournamentId) {
 }
 
 async function findById(id) {
-  const team = await Team.findById(id).populate('tournament', 'name date').lean();
+  const team = await Team.findById(id).populate('tournament', 'name date').populate('contact_leader', 'name').lean();
   return team ? mapTeam(team) : null;
 }
 

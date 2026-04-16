@@ -17,6 +17,42 @@
           <% }) %>
         </select>
       </label>
+      <label>
+        Kontakt leader
+        <select name="contact_leader">
+          <option value="">Ingen</option>
+          <% if (typeof leaders !== 'undefined') { %>
+            <% leaders.forEach((leader) => { %>
+              <option value="<%= leader.id %>"><%= leader.name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+      </label>
+      <label>
+        Kontakt telefon
+        <input name="contact_phone" type="text">
+      </label>
+      <button type="submit">Opprett lag</button>
+    </form>
+  <% } else if (currentUser && currentUser.role === 'leader') { %>
+    <form action="/leader/teams" method="post" class="form-grid" style="margin-bottom: 16px;">
+      <label>
+        Navn
+        <input name="name" type="text" required>
+      </label>
+      <label>
+        Turnering
+        <select name="tournamentId" required>
+          <option value="">Velg turnering</option>
+          <% tournaments.forEach((tournament) => { %>
+            <option value="<%= tournament.id %>"><%= tournament.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Kontakt telefon
+        <input name="contact_phone" type="text">
+      </label>
       <button type="submit">Opprett lag</button>
     </form>
   <% } %>
@@ -26,6 +62,8 @@
         <tr>
           <th>Navn</th>
           <th>Turnering</th>
+          <th>Kontakt navn</th>
+          <th>Kontakt telefon</th>
           <th>Handlinger</th>
         </tr>
       </thead>
@@ -52,11 +90,34 @@
             </td>
             <td>
               <% if (currentUser && currentUser.role === 'admin') { %>
+                <select form="team-form-<%= team.id %>" name="contact_leader">
+                  <option value="">Ingen</option>
+                  <% if (typeof leaders !== 'undefined') { %>
+                    <% leaders.forEach(leader => { %>
+                      <option value="<%= leader.id %>" <%= String(team.contact_leader_id) === String(leader.id) ? 'selected' : '' %>><%= leader.name %></option>
+                    <% }) %>
+                  <% } %>
+                </select>
+              <% } else { %>
+                <%= team.contact_leader_name || '-' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'leader')) { %>
+                <input form="team-form-<%= team.id %>" name="contact_phone" type="text" value="<%= team.contact_phone || '' %>">
+              <% } else { %>
+                <%= team.contact_phone || '-' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'leader')) { %>
                   <form id="team-form-<%= team.id %>" action="/teams/<%= team.id %>/update" method="post"></form>
-                  <button type="submit" form="team-form-<%= team.id %>">Lagre</button>
-                <form action="/teams/<%= team.id %>/delete" method="post" style="display:inline;">
-                  <button type="submit" class="secondary">Slett</button>
-                </form>
+                <button type="submit" form="team-form-<%= team.id %>">Lagre</button>
+                <% if (currentUser && currentUser.role === 'admin') { %>
+                  <form action="/teams/<%= team.id %>/delete" method="post" style="display:inline;">
+                    <button type="submit" class="secondary">Slett</button>
+                  </form>
+                <% } %>
               <% } else { %>
                 -
               <% } %>
@@ -64,7 +125,7 @@
           </tr>
         <% }) %>
         <% if (!teams.length) { %>
-          <tr><td colspan="3">Ingen lag registrert ennå.</td></tr>
+          <tr><td colspan="5">Ingen lag registrert ennå.</td></tr>
         <% } %>
       </tbody>
     </table>

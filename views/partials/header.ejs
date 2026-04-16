@@ -17,13 +17,20 @@
         <a href="/" class="nav-pill">Hjem</a>
         <% if (!currentUser) { %>
           <a href="/login">Logg inn</a>
-        <% } %>
-        <a href="/tournaments">Turneringer</a>
-        <a href="/teams">Lag</a>
-        <a href="/players">Spillere</a>
-        <a href="/matches">Kamper</a>
-        <% if (currentUser && currentUser.role === 'admin') { %>
+          <a href="/matches">Kamper</a>
+        <% } else if (currentUser.role === 'admin') { %>
+          <a href="/tournaments">Turneringer</a>
+          <a href="/teams">Lag</a>
+          <a href="/players">Spillere</a>
+          <a href="/matches">Kamper</a>
           <a href="/admin">Admin</a>
+        <% } else if (currentUser.role === 'leader') { %>
+          <a href="/teams">Lag</a>
+          <a href="/players">Spillere</a>
+          <a href="/matches">Kamper</a>
+        <% } else if (currentUser.role === 'participant') { %>
+          <a href="/players">Spillere</a>
+          <a href="/matches">Kamper</a>
         <% } %>
       </div>
     </nav>

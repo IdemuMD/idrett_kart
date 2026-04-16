@@ -4,7 +4,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', matchController.index);
+router.get('/', matchController.index); // Public + logged in can see matches
 router.post('/', requireAuth, requireRole('admin'), matchController.create);
 router.post('/:id/update', requireAuth, requireRole('admin'), matchController.update);
 router.post('/:id/delete', requireAuth, requireRole('admin'), matchController.remove);

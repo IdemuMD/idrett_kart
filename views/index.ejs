@@ -2,8 +2,13 @@
 
 <section class="card hero">
   <p class="eyebrow">Turneringssystem</p>
-  <h1>Administrer turneringer, lag, spillere og kamper</h1>
-  <p class="muted">Bruk EJS-sidene til å opprette og oppdatere data direkte i MongoDB.</p>
+  <% if (currentUser && currentUser.role === 'admin') { %>
+    <h1>Administrer turneringer, lag, spillere og kamper</h1>
+    <p class="muted">Bruk EJS-sidene til å opprette og oppdatere data direkte i MongoDB.</p>
+  <% } else { %>
+    <h1>Se kampoppsett og resultater</h1>
+    <p class="muted">Du kan se kampene her. Logg inn for å få tilgang til flere funksjoner.</p>
+  <% } %>
   <% if (currentUser) { %>
     <div class="hero-status">
       <span>Du er logget inn som <strong><%= currentUser.name %></strong> (<%= currentUser.role %>).</span>
@@ -14,7 +19,7 @@
   <% } else { %>
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
       <a class="hero-link" href="/login">Logg inn</a>
-      <a class="hero-link secondary-link" href="/tournaments">Se turneringer</a>
+      <a class="hero-link secondary-link" href="/matches">Se kamper</a>
     </div>
   <% } %>
 </section>
@@ -24,14 +29,16 @@
 <section class="card">
   <h2>Rask oversikt</h2>
   <div class="tournament-cards">
-    <article class="tournament-card">
-      <p class="name">Turneringer</p>
-      <p><%= tournaments.length %> registrert(e)</p>
-    </article>
-    <article class="tournament-card">
-      <p class="name">Lag</p>
-      <p><%= teams.length %> registrert(e)</p>
-    </article>
+    <% if (currentUser && currentUser.role === 'admin') { %>
+      <article class="tournament-card">
+        <p class="name">Turneringer</p>
+        <p><%= tournaments.length %> registrert(e)</p>
+      </article>
+      <article class="tournament-card">
+        <p class="name">Lag</p>
+        <p><%= teams.length %> registrert(e)</p>
+      </article>
+    <% } %>
     <article class="tournament-card">
       <p class="name">Kamper</p>
       <p><%= matches.length %> registrert(e)</p>
@@ -39,30 +46,32 @@
   </div>
 </section>
 
-<section class="card">
-  <h2>Siste turneringer</h2>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Navn</th>
-          <th>Dato</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% tournaments.slice(0, 5).forEach((tournament) => { %>
+<% if (currentUser && currentUser.role === 'admin') { %>
+  <section class="card">
+    <h2>Siste turneringer</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td><%= tournament.name %></td>
-            <td><%= new Date(tournament.date).toLocaleDateString('nb-NO') %></td>
+            <th>Navn</th>
+            <th>Dato</th>
           </tr>
-        <% }) %>
-        <% if (!tournaments.length) { %>
-          <tr><td colspan="2">Ingen turneringer registrert ennå.</td></tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
-</section>
+        </thead>
+        <tbody>
+          <% tournaments.slice(0, 5).forEach((tournament) => { %>
+            <tr>
+              <td><%= tournament.name %></td>
+              <td><%= new Date(tournament.date).toLocaleDateString('nb-NO') %></td>
+            </tr>
+          <% }) %>
+          <% if (!tournaments.length) { %>
+            <tr><td colspan="2">Ingen turneringer registrert ennå.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% } %>
 
 <section class="card">
   <h2>Siste kamper</h2>

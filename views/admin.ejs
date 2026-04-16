@@ -13,7 +13,19 @@
     </div>
   </div>
   <%- include('partials/messages', { error, success }) %>
-  <div class="tournament-cards">
+<% if (pendingTournaments && pendingTournaments.length > 0) { %>
+  <div class="alert-card">
+    <h3>🚨 Påminnelse: Manglende kampresultater</h3>
+    <p>Turneringer innen 48 timer med åpne kamper:</p>
+    <ul>
+      <% pendingTournaments.forEach(t => { %>
+        <li><%= t.name %> (<%= new Date(t.date).toLocaleDateString('nb-NO') %>)</li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<div class="tournament-cards">
     <article class="tournament-card">
       <p class="name">Brukere</p>
       <p><%= users.length %></p>
@@ -58,6 +70,15 @@
           <% }) %>
         </select>
       </label>
+      <label>Kontaktperson (leader)
+        <select name="contact_leader">
+          <option value="">Ingen</option>
+          <% if (typeof leaders !== 'undefined') { leaders.forEach(leader => { %>
+            <option value="<%= leader.id %>"><%= leader.name %></option>
+          <% }) } %>
+        </select>
+      </label>
+      <label>Kontaktperson telefon <input name="contact_phone" type="text"></label>
       <button type="submit">Opprett</button>
     </form>
 
