@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'Idrettskart' %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="bg-shape bg-shape-1"></div>
+  <div class="bg-shape bg-shape-2"></div>
+  <main class="page">
+    <nav class="nav">
+      <a href="/" class="logo">Idrettskart</a>
+      <div class="nav-user">
+        <a href="/" class="nav-pill">Hjem</a>
+        <% if (!currentUser) { %>
+          <a href="/login">Logg inn</a>
+        <% } %>
+        <a href="/tournaments">Turneringer</a>
+        <a href="/teams">Lag</a>
+        <a href="/players">Spillere</a>
+        <a href="/matches">Kamper</a>
+        <% if (currentUser && currentUser.role === 'admin') { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      </div>
+    </nav>

@@ -13,9 +13,7 @@ async function attachCurrentUser(req, res, next) {
       ? {
           id: user._id?.toString?.() || user.id,
           name: user.name,
-          username: user.username,
           role: user.role,
-          age: user.age ?? null,
         }
       : null;
     res.locals.currentUser = req.user;
@@ -27,7 +25,7 @@ async function attachCurrentUser(req, res, next) {
 
 function requireAuth(req, res, next) {
   if (!req.user) {
-    return res.status(401).json({ error: 'Du må være logget inn.' });
+    return res.redirect('/?error=' + encodeURIComponent('Du må være logget inn.'));
   }
 
   return next();
@@ -36,15 +34,28 @@ function requireAuth(req, res, next) {
 function requireRole(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Du har ikke tilgang til dette.' });
+      return res.redirect('/?error=' + encodeURIComponent('Du har ikke tilgang til dette.'));
     }
 
     return next();
   };
 }
 
+function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return res.redirect('/?error=' + encodeURIComponent('Du må være logget inn.'));
+  }
+
+  if (req.user.role !== 'admin') {
+    return res.redirect('/?error=' + encodeURIComponent('Kun admin har tilgang til denne siden.'));
+  }
+
+  return next();
+}
+
 module.exports = {
   attachCurrentUser,
+  requireAdmin,
   requireAuth,
   requireRole,
 };

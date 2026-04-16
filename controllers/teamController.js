@@ -1,65 +1,67 @@
 const teamModel = require('../models/teamModel');
 const tournamentModel = require('../models/tournamentModel');
 
-async function validateTournament(tournamentId) {
-  const exists = await tournamentModel.existsById(tournamentId);
-  return Boolean(exists);
+function redirectWithMessage(res, path, message, type = 'error') {
+  return res.redirect(`${path}?${type}=${encodeURIComponent(message)}`);
+}
+
+async function index(req, res) {
+  const [teams, tournaments] = await Promise.all([
+    teamModel.list(),
+    tournamentModel.listSimple(),
+  ]);
+
+  return res.render('teams', {
+    error: req.query.error || '',
+    success: req.query.success || '',
+    teams,
+    tournaments,
+  });
 }
 
 async function create(req, res) {
-  const { name, tournamentId, leaderUserId } = req.body || {};
-
-  if (!name || !tournamentId) {
-    return res.status(400).json({ error: 'Lagnavn og turnering er påkrevd.' });
-  }
-
-  const tournamentExists = await validateTournament(tournamentId);
-  if (!tournamentExists) {
-    return res.status(404).json({ error: 'Fant ikke turnering.' });
-  }
-
-  try {
-    const team = await teamModel.create(
-      String(name).trim(),
-      tournamentId,
-      leaderUserId ? leaderUserId : null,
-    );
-
-    return res.status(201).json({ id: team._id.toString() });
-  } catch (error) {
-    if (String(error.message).includes('duplicate key')) {
-      return res.status(409).json({ error: 'Lagnavnet finnes allerede i denne turneringen.' });
-    }
-
-    return res.status(500).json({ error: 'Kunne ikke opprette lag.' });
-  }
-}
-
-async function createForLeader(req, res) {
   const { name, tournamentId } = req.body || {};
 
   if (!name || !tournamentId) {
-    return res.status(400).json({ error: 'Lagnavn og turnering er påkrevd.' });
+    return redirectWithMessage(res, '/teams', 'Lagnavn og turnering er påkrevd.');
   }
 
-  const tournamentExists = await validateTournament(tournamentId);
+  const tournamentExists = await tournamentModel.existsById(tournamentId);
   if (!tournamentExists) {
-    return res.status(404).json({ error: 'Fant ikke turnering.' });
+    return redirectWithMessage(res, '/teams', 'Fant ikke turnering.');
   }
 
-  try {
-    const team = await teamModel.create(String(name).trim(), tournamentId, req.user.id);
-    return res.status(201).json({ id: team._id.toString() });
-  } catch (error) {
-    if (String(error.message).includes('duplicate key')) {
-      return res.status(409).json({ error: 'Lagnavnet finnes allerede i denne turneringen.' });
-    }
+  await teamModel.create({
+    name: String(name).trim(),
+    tournament: tournamentId,
+  });
 
-    return res.status(500).json({ error: 'Kunne ikke opprette lag.' });
+  return redirectWithMessage(res, '/teams', 'Laget ble opprettet.', 'success');
+}
+
+async function update(req, res) {
+  const { name, tournamentId } = req.body || {};
+
+  if (!name || !tournamentId) {
+    return redirectWithMessage(res, '/teams', 'Lagnavn og turnering er påkrevd.');
   }
+
+  await teamModel.update(req.params.id, {
+    name: String(name).trim(),
+    tournament: tournamentId,
+  });
+
+  return redirectWithMessage(res, '/teams', 'Laget ble oppdatert.', 'success');
+}
+
+async function remove(req, res) {
+  await teamModel.remove(req.params.id);
+  return redirectWithMessage(res, '/teams', 'Laget ble slettet.', 'success');
 }
 
 module.exports = {
   create,
-  createForLeader,
+  index,
+  remove,
+  update,
 };

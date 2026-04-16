@@ -1,0 +1,24 @@
+<%- include('partials/header', { pageTitle, currentUser }) %>
+
+<section class="card readme-shell">
+  <div class="readme-toolbar">
+    <div>
+      <p class="eyebrow">README.md</p>
+      <h1>Rendered preview</h1>
+    </div>
+  </div>
+  <article class="markdown-body">
+    <%- readmeHtml %>
+  </article>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.mermaid) {
+      window.mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

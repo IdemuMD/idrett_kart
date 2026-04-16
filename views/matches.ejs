@@ -1,0 +1,107 @@
+<%- include('partials/header', { pageTitle: 'Kamper', currentUser }) %>
+<section class="card">
+  <h1>Kamper</h1>
+  <%- include('partials/messages', { error, success }) %>
+  <% if (currentUser && currentUser.role === 'admin') { %>
+    <form action="/matches" method="post" class="form-grid" style="margin-bottom: 16px;">
+      <label>
+        Lag 1
+        <select name="team1Id" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Lag 2
+        <select name="team2Id" required>
+          <option value="">Velg lag</option>
+          <% teams.forEach((team) => { %>
+            <option value="<%= team.id %>"><%= team.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Tid
+        <input name="time" type="datetime-local" required>
+      </label>
+      <label>
+        Resultat
+        <input name="result" type="text" placeholder="Valgfritt">
+      </label>
+      <button type="submit">Opprett kamp</button>
+    </form>
+  <% } %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Lag 1</th>
+          <th>Lag 2</th>
+          <th>Tid</th>
+          <th>Resultat</th>
+          <th>Handlinger</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% matches.forEach((match) => { %>
+          <% const timeValue = new Date(match.time).toISOString().slice(0, 16); %>
+          <tr>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                <select form="match-form-<%= match.id %>" name="team1Id" required>
+                    <% teams.forEach((team) => { %>
+                      <option value="<%= team.id %>" <%= String(match.team1_id) === String(team.id) ? 'selected' : '' %>><%= team.name %></option>
+                    <% }) %>
+                  </select>
+              <% } else { %>
+                <%= match.team1_name || '-' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <select form="match-form-<%= match.id %>" name="team2Id" required>
+                    <% teams.forEach((team) => { %>
+                      <option value="<%= team.id %>" <%= String(match.team2_id) === String(team.id) ? 'selected' : '' %>><%= team.name %></option>
+                    <% }) %>
+                  </select>
+              <% } else { %>
+                <%= match.team2_name || '-' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <input form="match-form-<%= match.id %>" name="time" type="datetime-local" value="<%= timeValue %>" required>
+              <% } else { %>
+                <%= new Date(match.time).toLocaleString('nb-NO') %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <input form="match-form-<%= match.id %>" name="result" type="text" value="<%= match.result || '' %>">
+              <% } else { %>
+                <%= match.result || 'Ikke registrert' %>
+              <% } %>
+            </td>
+            <td>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                  <form id="match-form-<%= match.id %>" action="/matches/<%= match.id %>/update" method="post"></form>
+                  <button type="submit" form="match-form-<%= match.id %>">Lagre</button>
+                <form action="/matches/<%= match.id %>/delete" method="post" style="display:inline;">
+                  <button type="submit" class="secondary">Slett</button>
+                </form>
+              <% } else { %>
+                -
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+        <% if (!matches.length) { %>
+          <tr><td colspan="5">Ingen kamper registrert ennå.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/footer') %>

@@ -1,24 +1,14 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const schemaOptions = {
-  timestamps: { createdAt: 'created_at', updatedAt: false },
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 };
-
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    username: { type: String, required: true, trim: true, unique: true },
-    password_hash: { type: String, required: true },
-    role: { type: String, required: true, enum: ['admin', 'leader', 'participant'] },
-    age: { type: Number, default: null },
-  },
-  schemaOptions,
-);
 
 const tournamentSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
   },
   schemaOptions,
 );
@@ -26,39 +16,53 @@ const tournamentSchema = new mongoose.Schema(
 const teamSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    tournament_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Tournament', required: true },
-    leader_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    tournament: { type: mongoose.Schema.Types.ObjectId, ref: 'Tournament', required: true },
   },
   schemaOptions,
 );
 
-teamSchema.index({ name: 1, tournament_id: 1 }, { unique: true });
+teamSchema.index({ name: 1, tournament: 1 }, { unique: true });
 
 const playerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     age: { type: Number, required: true, min: 1 },
-    team_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
   },
   schemaOptions,
 );
-
-playerSchema.index({ user_id: 1 }, { unique: true, sparse: true });
 
 const matchSchema = new mongoose.Schema(
   {
-    tournament_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Tournament', required: true },
-    team1_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
-    team2_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
-    kickoff: { type: String, required: true },
-    score1: { type: Number, default: null },
-    score2: { type: Number, default: null },
+    team1: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
+    team2: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
+    time: { type: Date, required: true },
+    result: { type: String, default: '' },
   },
   schemaOptions,
 );
 
-matchSchema.index({ kickoff: 1 });
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, unique: true },
+    role: { type: String, required: true, enum: ['admin', 'leader', 'participant'] },
+    password: { type: String, required: true },
+  },
+  schemaOptions,
+);
+
+userSchema.pre('save', async function hashPassword(next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+});
 
 function toClientDoc(document) {
   if (!document) {

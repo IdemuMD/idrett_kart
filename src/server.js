@@ -4,6 +4,7 @@ const { initializeDatabase } = require('../models/database');
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
+  await app.locals.databaseReady;
   await initializeDatabase();
 
   app.listen(PORT, () => {
